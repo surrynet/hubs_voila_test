@@ -18,14 +18,6 @@ RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
     libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit \
     ldap-utils postgresql-client mysql-client
 
-# tesseract-ocr
-RUN mkdir -p /usr/local/share/tessdata && \
-    wget -q "https://github.com/tesseract-ocr/tessdata_best/blob/main/kor.traineddata?raw=true" -O /usr/local/share/tessdata/kor.traineddata && \
-    wget -q "https://github.com/tesseract-ocr/tessdata_best/blob/main/chi_tra.traineddata?raw=true" -O /usr/local/share/tessdata/chi_tra.traineddata && \
-    wget -q "https://github.com/tesseract-ocr/tessdata_best/blob/main/jpn.traineddata?raw=true" -O /usr/local/share/tessdata/jpn.traineddata && \
-    wget -q "https://github.com/tesseract-ocr/tessdata_best/blob/main/eng.traineddata?raw=true" -O /usr/local/share/tessdata/eng.traineddata
-ENV TESSDATA_PREFIX /usr/local/share/tessdata
-
 RUN mamba update -y -n base conda --all
 RUN mamba install -y --quiet numpy opencv scijava-jupyter-kernel \
     nb_conda_kernels pyglet pyvirtualdisplay implicit jupyterlab_execute_time python-graphviz pydot
@@ -34,12 +26,7 @@ RUN mamba clean --all -f -y
 RUN apt-get install -y language-pack-ko fonts-nanum* && \
     localedef -cvi ko_KR -f UTF-8 ko_KR.utf8; localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
 
-COPY truetype-fonts/ms /usr/share/fonts/truetype/ms
-RUN fc-cache -f
 RUN apt-get -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN mkdir -p /usr/local/bin/before-notebook.d/
-COPY profile.sh /usr/local/bin/before-notebook.d/profile.sh
 
 RUN python3 -m pip install --no-cache \
     flake8 pylint \
@@ -54,19 +41,6 @@ RUN python3 -m pip install --no-cache \
     jupyterlab-git jupyterlab_hdf
 
 RUN python3 -m pip install git+https://github.com/surrynet/hubs_voila.git
-
-RUN curl https://dl.google.com/go/go1.16.2.linux-amd64.tar.gz | tar zx -C /opt
-ENV PATH /opt/go/bin:${PATH}
-# installation path for go kernel (gophernotes)
-ENV GOPATH /opt/.go
-RUN env GO111MODULE=on go get github.com/gopherdata/gophernotes
-
-RUN mkdir -p /opt/conda/share/jupyter/
-COPY kernels /opt/conda/share/jupyter/kernels
-
-RUN mkdir -p /nhn
-
-ENV PATH /opt/cloudera/parcels/CDH/bin:${PATH}
 
 RUN mkdir -p /voila
 COPY test.ipynb /voila/
