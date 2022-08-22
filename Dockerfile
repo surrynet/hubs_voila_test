@@ -16,11 +16,10 @@ RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
     libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit \
     ldap-utils postgresql-client mysql-client wget curl
 
-RUN wget -qO- https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-RUN mamba update -y -n base conda --all
-RUN mamba install -y --quiet numpy opencv scijava-jupyter-kernel \
+RUN conda update -y -n base conda --all
+RUN conda install -y --quiet numpy opencv scijava-jupyter-kernel \
     nb_conda_kernels pyglet pyvirtualdisplay implicit jupyterlab_execute_time python-graphviz pydot
-RUN mamba clean --all -f -y
+RUN conda clean --all -f -y
 
 RUN apt-get install -y language-pack-ko fonts-nanum* && \
     localedef -cvi ko_KR -f UTF-8 ko_KR.utf8; localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
