@@ -1,7 +1,9 @@
-FROM buildpack-deps:bionic
+FROM jupyter/all-spark-notebook:hub-2.1.1
 
-# avoid prompts from apt
-ENV DEBIAN_FRONTEND=noninteractive
+USER root
+
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 RUN apt-get -y update
 RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
@@ -14,16 +16,17 @@ RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
     git vim netcat rsync tree psmisc \
     nfs-common netbase swig libboost-all-dev xvfb python3-opengl \
     libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit \
-    ldap-utils postgresql-client mysql-client wget curl
+    ldap-utils postgresql-client mysql-client 
 
-RUN conda update -y -n base conda --all
-RUN conda install -y --quiet numpy opencv scijava-jupyter-kernel \
+RUN mamba update -y -n base conda --all
+RUN mamba install -y --quiet numpy opencv scijava-jupyter-kernel \
     nb_conda_kernels pyglet pyvirtualdisplay implicit jupyterlab_execute_time python-graphviz pydot
-RUN conda clean --all -f -y
+RUN mamba clean --all -f -y
 
 RUN apt-get install -y language-pack-ko fonts-nanum* && \
     localedef -cvi ko_KR -f UTF-8 ko_KR.utf8; localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
 RUN apt-get -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 RUN python3 -m pip install --no-cache \
     flake8 pylint \
     hdfs xgboost shap jupyter-c-kernel \
