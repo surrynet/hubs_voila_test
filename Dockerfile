@@ -42,8 +42,5 @@ RUN python3 -m pip install --no-cache \
 RUN python3 -m pip install git+https://github.com/surrynet/hubs_voila.git
 COPY *.ipynb /
 
-ARG JUPYTERHUB_USER=${JUPYTERHUB_USER}
-ENV JUPYTERHUB_USER=${JUPYTERHUB_USER}
-
 RUN jupyter server extension enable voila --sys-prefix
 

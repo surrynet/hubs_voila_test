@@ -1,0 +1,36 @@
+x-jupyter-common: &jupyter-common
+    environment: &jupyter-environment
+        CONFIGPROXY_AUTH_TOKEN: ConfigProxy
+        PYTHONUNBUFFERED: 1
+    working_dir: /srv/voila
+    networks:
+        - pioneer_net
+    deploy: &jupyter-deploy
+        endpoint_mode: vip
+        mode: replicated
+        update_config:
+            parallelism: 1
+            order: start-first
+            delay: 0s
+            failure_action: rollback
+        restart_policy:
+            condition: any
+        resources:
+            limits:
+              memory: 2G
+        placement:
+            constraints:
+                - "node.role==manager"
+ 
+version: "3.8"
+services:
+    voila:
+        <<: *jupyter-common
+        image: hubs_voila_test
+        hostname: voila
+        command: hubs_voila create -s moon -p 8866 /index.ipynb
+networks:
+    pioneer_net:
+        name: ${NETWORK_NAME:-pioneer}
+        driver: overlay
+        external: true
