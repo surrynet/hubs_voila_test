@@ -40,4 +40,4 @@ RUN python3 -m pip install --no-cache \
     jupyterlab-git jupyterlab_hdf
 
 RUN python3 -m pip install git+https://github.com/surrynet/hubs_voila.git
-
+COPY index.ipynb /
