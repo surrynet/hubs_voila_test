@@ -3,6 +3,7 @@ FROM buildpack-deps:bionic
 # avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get -y update
 RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
     build-essential sudo cmake pkg-config libjpeg-dev libpng-dev ffmpeg libavcodec-dev \
     libavformat-dev libswscale-dev libxvidcore-dev libx264-dev libxine2-dev \
