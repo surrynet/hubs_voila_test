@@ -7,7 +7,7 @@ sudo repo2docker --user-id 1982001003 --user-name dash-lee --image-name hubs_voi
 ## docker compose 환경에서 테스트
 * proxy의 CONFIGPROXY_AUTH_TOKEN 환경변수가 있어야 한다.
 ```
-docker run -ti --rm --env CONFIGPROXY_AUTH_TOKEN=ConfigProxy --network pioneer --name voila hubs_voila_test hubs_voila create -n voila -s moon -p 8866 /index.ipynb
+docker run -ti --rm --env CONFIGPROXY_AUTH_TOKEN=ConfigProxy --network pioneer --name voila hubs_voila_test hubs_voila create -s moon -p 8866 /index.ipynb
 ```
 * browser
   * http://localhost:8000/voila/moon/
