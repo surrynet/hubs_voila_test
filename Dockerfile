@@ -1,4 +1,4 @@
-FROM jupyter/all-spark-notebook:hub-2.1.1
+FROM jupyter/scipy-notebook:hub-3.0.0
 
 USER root
 
@@ -29,17 +29,17 @@ RUN apt-get -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN python3 -m pip install --no-cache \
     flake8 pylint \
-    hdfs xgboost shap jupyter-c-kernel \
+    xgboost shap jupyter-c-kernel \
     voila voila-gridstack voila-vuetify ipyvuetify bqplot \
     matplotlib ipympl ipycanvas \
     sklearn tensorflow glmnet pytesseract opencv-python-headless \
-    mysql-connector-python pyspark sasl thrift thrift-sasl PyHive PyHBase pydruid psycopg2-binary graphviz \
+    mysql-connector-python sasl thrift thrift-sasl psycopg2-binary graphviz \
     vaex modin tqdm lightgbm ldap3 bayesian-optimization \
     pyvespa geopandas folium pycountry pgeocode geopy basemap \
     sphinx boto3 apache-airflow==2.3.0 onnx tf2onnx \
-    jupyterlab-git jupyterlab_hdf
+    jupyterlab-git jupyterlab_hdf torch deepctr-torch
 
-RUN python3 -m pip install git+https://github.com/surrynet/hubs_voila.git
+RUN pip install git+https://github.com/surrynet/hubs_voila.git
 COPY *.ipynb /
 
 RUN jupyter server extension enable voila --sys-prefix
