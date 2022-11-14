@@ -1,4 +1,4 @@
-FROM jupyter/scipy-notebook:hub-3.0.0
+FROM ubuntu:22.04
 
 USER root
 
@@ -6,41 +6,42 @@ ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
 RUN apt-get -y update
-RUN apt-get -y install --no-install-recommends apt-utils iputils-ping \
-    build-essential sudo cmake pkg-config libjpeg-dev libpng-dev ffmpeg libavcodec-dev \
-    libavformat-dev libswscale-dev libxvidcore-dev libx264-dev libxine2-dev \
-    libv4l-dev v4l-utils libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgtk-3-dev \
-    mesa-utils libgl1-mesa-dri libgtkgl2.0-dev libgtkglext1-dev libatlas-base-dev gfortran libeigen3-dev \
-    libleptonica-dev libtesseract-dev tesseract-ocr tesseract-ocr-kor tesseract-ocr-eng \
-    unixodbc unixodbc-dev r-cran-rodbc \
-    git vim netcat rsync tree psmisc \
-    nfs-common netbase swig libboost-all-dev xvfb python3-opengl \
-    libsasl2-dev libsasl2-2 libsasl2-modules-gssapi-mit \
-    ldap-utils postgresql-client mysql-client 
+RUN apt-get -y install --no-install-recommends apt-utils \
+    build-essential pkg-config wget curl zip bzip2 ca-certificates git
+
+ENV CONDA_DIR=/opt/conda
+ENV PATH /opt/conda/bin:$PATH
+RUN set -x && \
+    arch=$(uname -m) && \
+    if [ "${arch}" = "x86_64" ]; then \
+        arch="64"; \
+    fi && \
+    wget -qO /tmp/micromamba.tar.bz2 \
+        "https://micromamba.snakepit.net/api/micromamba/linux-${arch}/latest" && \
+    tar -xvjf /tmp/micromamba.tar.bz2 --strip-components=1 bin/micromamba && \
+    rm /tmp/micromamba.tar.bz2 && \
+    PYTHON_SPECIFIER="python=${PYTHON_VERSION%.*}" && \
+    if [[ "${PYTHON_VERSION%.*}" == "default" ]]; then PYTHON_SPECIFIER="python"; fi && \
+    ./micromamba install \
+        --root-prefix="${CONDA_DIR}" \
+        --prefix="${CONDA_DIR}" \
+        --yes \
+        "${PYTHON_SPECIFIER}" \
+        'mamba' \
+        -c conda-forge && \
+    rm micromamba && \
+    mamba list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned"
 
 RUN mamba update -y -n base conda --all
-RUN mamba install -y --quiet numpy opencv scijava-jupyter-kernel \
-    nb_conda_kernels pyglet pyvirtualdisplay implicit jupyterlab_execute_time python-graphviz pydot
+RUN mamba install -y --quiet -c conda-forge numpy
 RUN mamba clean --all -f -y
 
 RUN apt-get install -y language-pack-ko fonts-nanum* && \
     localedef -cvi ko_KR -f UTF-8 ko_KR.utf8; localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
 RUN apt-get -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN python3 -m pip install --no-cache \
-    flake8 pylint \
-    xgboost shap jupyter-c-kernel \
-    voila voila-gridstack voila-vuetify ipyvuetify bqplot \
-    matplotlib ipympl ipycanvas \
-    sklearn tensorflow glmnet pytesseract opencv-python-headless \
-    mysql-connector-python sasl thrift thrift-sasl psycopg2-binary graphviz \
-    vaex modin tqdm lightgbm ldap3 bayesian-optimization \
-    pyvespa geopandas folium pycountry pgeocode geopy basemap \
-    sphinx boto3 apache-airflow==2.3.0 onnx tf2onnx \
-    jupyterlab-git jupyterlab_hdf torch deepctr-torch
+RUN pip install --no-cache pyvespa voila matplotlib folium basemap jupyterlab ipywidgets
 
 RUN pip install git+https://github.com/surrynet/hubs_voila.git
+
 COPY *.ipynb /
-
-RUN jupyter server extension enable voila --sys-prefix
-
