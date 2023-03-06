@@ -33,14 +33,14 @@ RUN set -x && \
     mamba list python | grep '^python ' | tr -s ' ' | cut -d ' ' -f 1,2 >> "${CONDA_DIR}/conda-meta/pinned"
 
 RUN mamba update -y -n base conda --all
-RUN mamba install -y --quiet -c conda-forge numpy
+RUN mamba install -y --quiet -c conda-forge numpy ipywidgets
 RUN mamba clean --all -f -y
 
 RUN apt-get install -y language-pack-ko fonts-nanum* && \
     localedef -cvi ko_KR -f UTF-8 ko_KR.utf8; localedef -f UTF-8 -i ko_KR ko_KR.UTF-8
 RUN apt-get -y clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN pip install --no-cache pyvespa voila matplotlib folium basemap jupyterlab ipywidgets
+RUN pip install --no-cache pyvespa voila matplotlib folium basemap jupyterlab
 
 RUN pip install git+https://github.com/surrynet/hubs_voila.git
 
